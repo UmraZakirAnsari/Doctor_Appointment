@@ -7,6 +7,7 @@ admin/node_modules/
 backend/package-lock.json
 frontend/package-lock.json
 admin/package-lock.json
+backend/.env
 
 # Optional: general ignores
 .DS_Store

@@ -1,13 +1,32 @@
 import { createContext } from "react";
 
-export const AppContext=createContext()
+export const AppContext = createContext()
 
-const AppContextProvider=(props)=>{
+const AppContextProvider = (props) => {
+    const currency='$'
+    const calculateAge = (dob) => {
 
-    const value={
+        const today = new Date()
+        const birthDate = new Date(dob)
+        let age = today.getFullYear() - birthDate.getFullYear()
+        return age
 
     }
-    return(
+
+    const months = ["", "Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+    const slotdateformat = (slotDate) => {
+        const dateArray = slotDate.split('_')
+        return `${dateArray[0]} ${months[+dateArray[1]]} ${dateArray[2]}`
+    }
+
+
+    const value = {
+        calculateAge
+        , slotdateformat,
+        currency
+    }
+    return (
         <AppContext.Provider value={value}>
             {props.children}
         </AppContext.Provider>

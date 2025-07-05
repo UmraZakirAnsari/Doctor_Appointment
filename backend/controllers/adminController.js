@@ -2,7 +2,9 @@ import validator from 'validator'
 import bcrypt from 'bcrypt'
 import {v2 as cloudinary} from 'cloudinary'
 import doctorModel from '../models/doctorModel.js'
+import userModel from '../models/userModel.js'
 import jwt from 'jsonwebtoken'
+import appointmentModel from '../models/appointmentModel.js'
 
 //api for adding doctor 
 const addDoctor=async (req,res) => {
@@ -80,4 +82,79 @@ const loginAdmin= async (req,res) => {
                 res.json({success:false,message:error.message})
           }   
      }
-export {addDoctor,loginAdmin,allDoctors} 
+
+     //API to get all appoinment list
+     const appointmentsAdmin=async (req,res) => {
+        try {
+          const appointments=await  appointmentModel.find({})
+          res.json({success:true,appointments})
+        } catch (error) {
+           console.log(error)
+                res.json({success:false,message:error.message})
+          }   
+        }  
+     //API for appointment cancellation 
+     const appointmentCancell = async (req, res) => {
+         try {
+          
+             const { appointmentId } = req.body;
+     
+     
+             const appointment = await appointmentModel.findById(appointmentId);
+             if (!appointment) {
+                 return res.json({ success: false, message: 'Appointment not found' });
+             }
+     
+     
+             
+     
+             await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true });
+     
+     
+             const { docId, slotDate, slotTime } = appointment;
+             const doctorData = await doctorModel.findById(docId);
+     
+             if (doctorData?.slots_booked?.[slotDate]) {
+                 doctorData.slots_booked[slotDate] = doctorData.slots_booked[slotDate].filter(
+                     (t) => t !== slotTime
+                 );
+     
+                 if (doctorData.slots_booked[slotDate].length === 0) {
+                     delete doctorData.slots_booked[slotDate];
+                 }
+     
+                 await doctorModel.findByIdAndUpdate(docId, {
+                     slots_booked: doctorData.slots_booked,
+                 });
+             }
+     
+             return res.json({ success: true, message: 'Appointment cancelled' });
+         } catch (error) {
+             console.error('Cancel Error:', error);
+             return res.json({ success: false, message: error.message });
+         }
+     };
+   //API to get dashboard data for admin panel 
+   const adminDashboard=async (req,res) => {
+     try {
+           const doctors =await doctorModel.find({})
+           const users= await userModel.find({})
+           const appointment=await appointmentModel.find({})
+           const dashData={
+               doctors:doctors.length,
+               appointment:appointment.length,
+               patients:users.length,
+               latestAppointments:appointment.reverse().slice(0,5)
+
+           }
+           res.json({success:true,dashData})
+
+
+
+     } catch (error) {
+          console.error('Cancel Error:', error);
+          return res.json({ success: false, message: error.message });
+     }
+     
+   }
+export {addDoctor,loginAdmin,allDoctors,appointmentsAdmin,appointmentCancell,adminDashboard} 
