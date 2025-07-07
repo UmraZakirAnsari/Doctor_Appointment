@@ -6,8 +6,8 @@ import { AppContext } from '../../context/AppContext'
 import { assets } from "../../assets/assets";
 
 const AllAppointment = () => {
-  const { aToken, appointments, getAllAppointments,  cancelAppointment  } = useContext(AdminContext)
-   const {calculateAge,slotdateformat,  currency}= useContext(AppContext)
+  const { aToken, appointments, getAllAppointments, cancelAppointment } = useContext(AdminContext)
+  const { calculateAge, slotdateformat, currency } = useContext(AppContext)
   useEffect(() => {
     if (aToken) {
       getAllAppointments()
@@ -33,18 +33,20 @@ const AllAppointment = () => {
               <div className='flex items-center gap-2 '>
                 <img className='w-8 rounded-full' src={item.userdata.image} alt='' /> <p>{item.userdata.name}</p>
               </div>
-            <p className='max-sm:hidden'>{calculateAge(item.userdata.dob)}</p>
-            <p>{slotdateformat(item.slotDate)},{item.slotTime}</p>
-            <div className='flex items-center gap-2 '>
+              <p className='max-sm:hidden'>{calculateAge(item.userdata.dob)}</p>
+              <p>{slotdateformat(item.slotDate)},{item.slotTime}</p>
+              <div className='flex items-center gap-2 '>
                 <img className='w-8 rounded-full bg-gray-200' src={item.docData.image} alt='' /> <p>{item.docData.name}</p>
               </div>
               <p>{currency}{item.amount}</p>
               {
                 item.cancelled
-                ? <p className='text-red-400 text-xs font-medium'>Cancelled</p>
-                : <img onClick={()=>cancelAppointment(item._id)} className='w-10 cursor-pointer ' src={assets.cancel_icon} alt=''/>
+                  ? <p className='text-red-400 text-xs font-medium'>Cancelled</p>
+                  : item.isCompleted
+                    ? <p className='text-green-500 text-xs font-medium'x>Completed</p>
+                    : <img onClick={() => cancelAppointment(item._id)} className='w-10 cursor-pointer ' src={assets.cancel_icon} alt='' />
               }
-              
+
             </div>
           ))
         }
